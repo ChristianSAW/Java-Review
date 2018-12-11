@@ -50,7 +50,21 @@ public class A2 {
         // TODO 1. There is no need for a loop. Do not use a loop.
         // In all methods, use s1.equals(s2) and NOT s1 == s2 to test
         // equality of s1 and s2.
-
+    	int len = s.length();
+    	
+    	// Check if length is even
+    	if (len%2 == 0) {
+    		if (len == 0) {
+    			return true;
+    		}
+    		else {
+    			String s1 = s.substring(0, (len/2)-1);
+        		String s2 = s.substring(len/2,len-1);
+        		if (s1.equals(s2)) {
+        			return true; 
+        		}
+    		}
+    	}
         return false;
     }
 
@@ -60,8 +74,21 @@ public class A2 {
      * For s = "aaaabaccc", return "abac" */
     public static String removeDups(String s) {
         // TODO 2.
-
-        return null;
+    	int i = 1;
+    	while (i < s.length()) {
+    		if (s.charAt(i) == (s.charAt(i-1))) { // use == b/c char is primitive type
+    			s = removeChar(s,i);
+    		} else {
+    			i++; // only increment if not not having removed character
+    		}
+    	}
+        return s;
+    }
+    /** Returns s with the character of index idx removed
+     */
+    private static String removeChar(String s, int idx) {
+    	assert idx < s.length() && idx >= 0;    // check that index is in range
+    	return s.substring(0, idx) + s.substring(idx + 1);
     }
 
     /** Return s but with each occurrence of a character in input replaced by the
@@ -79,8 +106,10 @@ public class A2 {
     public static String replace(String s, String input, String output) {
         // TODO 3 This needs only ONE for-loop with a single statement in the
         // loop body. Look for a suitable String method!
-
-        return null;
+    	for (int i = 0; i < input.length(); i++) { 
+    		s = s.replace((input.charAt(i)), output.charAt(i));
+    	}
+        return s;
     }
 
     /** Return the shortest substring x of s such that s = x + x + ⋯ + x.
@@ -96,10 +125,41 @@ public class A2 {
         // to add a helper function, with a suitable specification,
         // in order to remove the need for nested loops. It is easier
         // to write and easier to read/understand.
-
-        return null;
+    	int lenSS = 0;
+    	int numOccur = 0;
+    	int i = 0;
+    	String k = s;
+    	//System.out.println(s.length());
+    	while (lenSS*numOccur != s.length()) {
+    		//System.out.println("Got to this point");
+    		k = s.substring(0,i+1);
+    		//System.out.println("Got to this point 2");
+    		lenSS = k.length();
+    		numOccur = numAppear(s,k);
+    		i++;
+    		//System.out.println(k);
+    	}
+        return k;
     }
-
+    
+    /** Returns the number of times substring k appears in s 
+     * 
+     */
+    public static int numAppear(String s, String k) {
+    	assert s.length() >= k.length();
+    	int indOccur = 0; 
+        int numOccur = 0;          // count number of appearances of k in s
+        while (indOccur != -1) {
+        	indOccur = s.indexOf(k, indOccur);
+        	//System.out.println(indOccur);
+        	if (indOccur !=-1) {
+        		//System.out.println("Gets Here");
+        		numOccur++;
+        		indOccur += k.length();
+        	}
+        }
+    	return numOccur;
+    }
     /** Return the value of the expression given by s.
      *  Precondition: s consists of a series of (at least one) integers
      *  separated by the operators '+' or '-'. The expression may contain
@@ -114,8 +174,54 @@ public class A2 {
     public static int eval(String s) {
         // TODO 5. You can use Integer.parseInt to convert a string
         // (like "12345") to the corresponding integer (12345).
-
-        return 0;
+    	
+    	// remove white space
+    	s = s.replace(" ", "");
+    	System.out.println(s);
+    	
+    	int result = 0;
+    	int secTerm = 0;
+    	int ind1 = 0;
+    	boolean opIsAdd = true;
+    	boolean stringIs1Number = true;
+    	
+    	// loop through string 
+    	for (int i = 0; i < s.length(); i++) {
+    		// check if value is operator
+    		if (Character.isDigit(s.charAt(i)) == false) {
+    			stringIs1Number = false;
+    			// set secTerm
+    			secTerm = Integer.parseInt(s.substring(ind1, i));
+    			ind1 = i+1;
+    			// add previous terms
+    			if (opIsAdd == true) {
+    				result += secTerm;
+    			} else {
+    				result -= secTerm;
+    			}
+    			// update operator 
+    			char op = s.charAt(i);
+    			if (op == '+') {
+    				opIsAdd = true;
+    			} else {
+    				opIsAdd = false;
+    			}
+    		}
+    	}
+    	// check if string was 1 number and return that number if so
+    	if (stringIs1Number) {
+    		result = Integer.parseInt(s);
+    	} else {
+    		// update second term to last number in string
+    		secTerm = Integer.parseInt(s.substring(ind1,s.length()));
+    		// add/subtract the last 2 terms
+    		if (opIsAdd == true) {
+    			result += secTerm;
+    		} else {
+    			result -= secTerm;
+    		}
+    	}
+        return result;
     }
 
 }
