@@ -1,4 +1,4 @@
-/* Completed by Christian Welling */
+/* Completed by: Christian Welling */
 
 /** A collection of static String utility functions. All methods assume that
  * String parameters are non-null.
