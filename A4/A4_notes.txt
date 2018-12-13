@@ -1,5 +1,6 @@
-This assignment involves the following concepts:
+* This assignment involves the following concepts:
 - trees (data structure)
 - recursion
 
 * Simply need to update SharingTree.java
+* Program is run by running Post.java
