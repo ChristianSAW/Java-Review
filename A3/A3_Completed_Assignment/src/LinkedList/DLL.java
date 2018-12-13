@@ -1,6 +1,8 @@
 package LinkedList;
 /* Completed by: Christian Welling */
 
+import LinkedList.DLL.Node;
+
 /** An instance is a doubly linked list. */
 public class DLL<E> {
     private int size;   // Number of values in the linked list.
@@ -64,9 +66,19 @@ public class DLL<E> {
         //        Use the same sort of scheme. Extreme case to watch out for:
         //        E is String and value are the empty string.
         //        You can't test this fully until #2, append, is written.
+        String res = "[";
+        Node n = last;
+        // inv: res contains values of nodes after node n (all of them if n = null),
+        //      with ", " after each (except for the last value)
+        while (n != null) {
+        	res = res + n.val;
+        	n = n.prev;
+        	if (n != null) {
+        		res = res + ", ";
+        	}
+        }
         
-
-        return "";
+        return res + "]";
     }
 
     /** add value v in a new node at the end of the list.
@@ -76,14 +88,48 @@ public class DLL<E> {
         //        toStringRev thoroughly before starting on the next
         //        method. These two must be correct in order to be
         //        able to write and test all the others.
+    	
+    	// Test Cases:
+    	// 1) the list is empty 
+		// 2) the list is not empty
 
-
+		Node a2 = null;
+    	if (size < 1) { // (1) list is empty 
+    		Node a1 = null; 
+    		Node n = new Node(a1, a2, v);
+    		first = n;
+    		last = n;
+    	} else {        // (2) the list is not empty
+    		Node a1 = last;
+    		Node n = new Node(a1, a2, v);
+    		last = n;
+    		a1.next = n;
+    	}
+		size++;
     }
  
     /** Add value v in a new node at the beginning of the list.
      * This operation takes constant time. */
     public void prepend(E v) {
         //TODO 3.
+    	
+    	// Test Cases:
+    	// 1) the list is empty 
+		// 2) the list is not empty
+
+		Node a1 = null; 
+    	if (size < 1) { // (1) list is empty 
+    		Node a2 = null;
+    		Node n = new Node(a1, a2, v);
+    		first = n;
+    		last = n;
+    	} else {        // (2) the list is not empty
+    		Node a2 = first;
+    		Node n = new Node(a1, a2, v);
+    		first = n;
+    		a2.prev = n;
+    	}
+    	size++;
     }
     
     /** Return node number k. 
@@ -94,8 +140,26 @@ public class DLL<E> {
         //TODO 4. This method should take time proportional to min(k, size-k).
         // For example, if k <= size/2, search from the beginning of the
         // list, otherwise search from the end of the list.
+        assert 0 <= k && k < size;
         
-        return null;
+        int i;
+        Node n;
+        if (k <= size/2) { // search from beginning of LL
+        	i = 0;
+        	n = first;
+        	while (i != k) {
+        		i++;
+        		n = n.next;
+        	}
+        } else {           // search from end of LL
+        	i = size - 1;
+        	n = last;
+        	while (i != k) {
+        		i--;
+        		n = n.prev;
+        	}
+        }
+        return n;
     }
 
     /** Insert value v in a new node after node n.
@@ -103,7 +167,17 @@ public class DLL<E> {
      * Precondition: n must be a node of this list; it may not be null. */
     public void insertAfter(E v, Node n) {
         //TODO 5. Make sure this method takes constant time. 
-        
+    	
+    	Node a1 = n.next;
+    	Node a2 = new Node(n, a1, v);
+    	n.next = a2;
+    	
+        if (a1 == null) { // check if inserted node is last node. 
+        	last = a2;
+        } else {
+        	a1.prev = a2;
+        }
+        size++;
     }
     
     /** Insert value v in a new node before node n.
@@ -112,6 +186,16 @@ public class DLL<E> {
     public void insertBefore(E v, Node n) {
         //TODO 6. Make sure this method takes constant time. 
         
+    	Node a1 = n.prev;
+    	Node a2 = new Node(a1, n, v);
+    	n.prev = a2;
+    	
+        if (a1 == null) { // check if inserted node is first node. 
+        	first = a2;
+        } else {
+        	a1.next = a2;
+        }
+        size++;
     }
 
     /** Remove node n from this list.
@@ -120,6 +204,28 @@ public class DLL<E> {
     public void remove(Node n) {
         //TODO 7. Make sure this method takes constant time. 
         
+		assert(n != null);
+		
+		Node a1 = n.next;
+		Node a2 = n.prev;
+		
+		if (size == 1) {		// if one node in list
+			first = null;
+			last = null;
+		}			
+		else if (n == first) {  // if node is first
+			first = a1;
+			a1.prev = null;
+		}	
+		else if (n == last) {   // if node is last
+			last = a2;
+			a2.next = null;
+		}	
+		else { 		            // if node is in middle of list
+			a1.prev = a2;
+			a2.next = a1;
+		}
+		size--;
     } 
     
     /*********************/
