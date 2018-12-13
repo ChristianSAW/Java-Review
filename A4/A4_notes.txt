@@ -1,3 +1,5 @@
 This assignment involves the following concepts:
 - trees (data structure)
 - recursion
+
+* Simply need to update SharingTree.java
