@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.List;
 import java.util.Set;
 
@@ -117,16 +118,34 @@ public class SharingTree {
      * -- p is not in this SharingTree */
     public SharingTree insert(Person p, Person c) throws IllegalArgumentException {
         //TODO 1. This function has a simple, non-recursive implementation
-
-        return null;
+    	
+    	// Check Illegal Arguments
+    	if (p == null || c == null)    // p or c is null
+    		throw new IllegalArgumentException("'Person' inputs must not be null!"); 
+    	else if (getTree(c) != null)   // c is in sharing tree
+    		throw new IllegalArgumentException("Person 'c' already exists in tree!");
+    	else if (getTree(p) == null)   // p is not in sharing tree
+    		throw new IllegalArgumentException("Person 'p' does not exist in tree!");
+    	
+    	// Add c as child of p and return c's sharingTree
+    	SharingTree parent = getTree(p);
+    	SharingTree child = new SharingTree(c);
+    	parent.children.add(child);
+    	return child;
     }
 
     /** Return the number of people in this SharingTree.
      * Note: If this is a leaf, the size is 1 (just the root) */
     public int size() {
         //TODO 2
-
-        return 0;
+    	int num = 1;
+    	if (children.isEmpty()) { return num; }
+    	else { // can't have a return statement within a for-each so use a counter
+    		for (SharingTree child : children) { 
+    			num += child.size();
+    		}
+    	}
+    	return num;
     }
 
     /**Return the depth at which p occurs in this SharingTree,
@@ -135,15 +154,47 @@ public class SharingTree {
      * If p is a child of this SharingTree, then depth(p) is 1. etc. */
     public int depth(Person p) {
         //TODO 3
-
-        return -1;
-
+    	
+    	/*
+    	 * Below is a longer version of my solution. This is another way of 
+    	 * looking at the method to better understand it.
+    	 * @ *Key line: as each child node is searched, only when node p is 
+    	 * reached (if its reached) will this condition be met.  
+    	if (p == root) 	return 0;                 // base case 1
+    	else if (children.isEmpty()) return -1;   // base case 2
+    	else {
+    		for (SharingTree child : children) {
+    			if (child.depth(p) != -1) {       // *Key line to understand
+    				return 1 + child.depth(p);
+    			}
+    		}
+    		return -1;                            // p is not in tree
+    	}
+    	*/
+    	
+    	if (p == root) return 0;                 // base case 1
+    	else if (!children.isEmpty()) {
+    		for (SharingTree child : children) {
+    			if (child.depth(p) != -1) return 1 + child.depth(p);
+    		}
+    	}    	
+        return -1;                               // base case 2 (/p not in tree)
     }
 
     /** If p is in this tree, return the SharingTree object in this tree 
      * that contains p. If p is not in this tree, return null.
      * <p>
-     * Example: Calling getTree(root) should return this.
+     * i.e. Each Person p in this SharingTree is contained within their own 
+	 * SharingTree object as a root. If p is part of this SharingTree (root or 
+	 * child otherwise), this function will recursively find the SharingTree for 
+	 * which p is root. 
+	 * <p>
+	 * Example: Calling getTree(root) should return this.
+	 * Example: 
+	 * Iterator itr = children.iterator();
+	 * SharingTree child1 = itr.next();
+	 * Calling getTree(child1) should return some SharingTree object != this 
+	 * (and where child1 = root).
      */
     public SharingTree getTree(Person p) {
         if (root == p) return this; //Base case - look here
@@ -200,8 +251,17 @@ public class SharingTree {
      */
     public int widthAtDepth(int d) throws IllegalArgumentException {
         //TODO 4
-
-        return 0;
+    	if (d < 0) throw new IllegalArgumentException("Depth must be >= 0");
+    	
+    	// Base Case 1: reached when desired depth is found within tree
+    	// Base Case 2: reached if d > maxTree depth
+    	// *: Sums values across depth. Ignored if no children.
+    	int width = 0;
+    	if (d == 0) return 1;   // base case 1 
+    	for (SharingTree child : children) { //*
+    		width += child.widthAtDepth(d-1);
+    	}
+        return width;           // base case 2
     }
 
     /** Return the maximum width of all the widths in this tree, i.e. the
@@ -307,8 +367,23 @@ public class SharingTree {
         // LinkedList<Person> is preferred to ArrayList<Person> here.
         // The reason is a hint on how to use it.
         // Base Case: The root of this SharingTree is c. Route is just [child]
-
-        return null;
+    	
+    	if (!contains(c)) return null; 
+    	else if (c == root) {    // base case (Always what creates the LL)
+    		LinkedList<Person> sharingRoute = new LinkedList<Person>();
+			sharingRoute.add(c); // prepend node c
+			return sharingRoute; 
+    	} else {                 // no need to check for children 
+    		for (SharingTree child : children) {
+    			if (child.contains(c)) {
+    				List<Person> sharingRouteTemp = child.getSharingRoute(c);
+    				sharingRouteTemp.add(0, root); // prepend current node (!=c)
+    				return sharingRouteTemp;
+    			}
+    		}
+    	}
+    	return null;         // can't reach this point.
+    						 // should be able to write this out somehow. 
     }
 
     /** Return the immediate parent of c (null if c is not in this
@@ -377,8 +452,35 @@ public class SharingTree {
         // but that can be inefficient. Instead, try building the
         // sharing routes to child1 and child2 and calculate the
         // largest k such that l1[0..k] and l2[0..k] are equal.
+    	
+    	// Quick null cases to check 
+    	if (!contains(child1) || !contains(child2)) return null;
+    	else if ((child1 == null) || (child2 == null)) return null;
+    	
+    	// Taken care of by while loop
+    	// else if (child1 == root || child2 == root) return root; 
+    	// else if (child1 == child2) return child1;
 
-        return null;
+    	// get sharing route for each
+    	List<Person> l1 = getSharingRoute(child1);
+    	List<Person> l2 = getSharingRoute(child2);
+    	
+    	// create iterators 
+    	ListIterator<Person> itr1 = l1.listIterator();
+    	ListIterator<Person> itr2 = l2.listIterator();
+    	Person sa1 = itr1.next(); // default to root as shared ancestor
+    	Person sa2 = itr2.next(); // know first node must be shared 
+    	    	
+    	while( itr1.hasNext() && itr2.hasNext()) {
+    		sa1 = itr1.next();
+    		sa2 = itr2.next();
+    		if (sa1 != sa2) {
+    			sa1 = l1.get(itr1.previousIndex()-1);
+    			break; 			  // exit loop if deviation found or 
+    							  // finished iterating through 1 of lists.
+    		}
+    	}
+    	return sa1;
     }
 
     /** Return a (single line) String representation of this SharingTree.
@@ -479,6 +581,26 @@ public class SharingTree {
         // child of another tree because the names of Person's are all unique;
         // there are no duplicates.
 
+    	if (ob instanceof SharingTree) {         // condition 1
+    		SharingTree s = (SharingTree) ob;
+    		int counter = 0;
+    		if ((s.getRoot() == root) &          // condition 2
+    				(s.getChildrenCount() == this.getChildrenCount()) & 
+    				(s.size() == this.size())) { // condition 3    
+    			// loop through children and keep count of number of matches
+    			for (SharingTree child : children) {
+    				for (SharingTree st : s.getChildren()) {
+    					if (child.equals(st)) counter++;
+    				}
+    			}
+    			// because no duplicates in a tree, number of matches is only 
+    			// equal to number of children if child trees are the same.
+    			if (counter == this.getChildrenCount()) {
+    				return true;
+    			}
+    		}
+    	}
+    	
         return false;
 
     }
