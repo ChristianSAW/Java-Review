@@ -1,0 +1,25 @@
+Notes about A5 go here.
+
+How to run this program: 
+- Run PaintGui.java
+
+About Program:
+- Program allows you to open image files and save in images files. 
+- You can draw with a pencil (freehand drawing), erase, and airbrush. 
+- You can draw lines and circles. 
+- You can change both the foreground color (used for drawing) and the background color (used for erasing). 
+- *SAVE: The  program lets you know when there are unsaved changes to the image. Label "SAVE" appears at the bottom whenever changes are made and dissapears when the image is saved to a file. 
+
+Java Files:
+* PaintGUI.java: 
+- Main program to run. 
+- Class sets up the main window of the program and handles the creation of most GUI components and responds to relevant actions. 
+
+* DrawingPanel.java: 
+- This class represents the image you are painting. It handels the mouse events that are relevant fordrawing  and performs the drawing operations. 
+
+* NewImageDialog.java:
+- A custom dialog for creating new blank images.
+
+* Tool.java: 
+- An enumeration of the available drawing tools. 
